@@ -5,7 +5,7 @@ import PublicNavbar from '../../components/layout/PublicNavbar.jsx'
 import PublicFooter from '../../components/layout/PublicFooter.jsx'
 import { Button, Badge, ErrorState } from '../../components/ui/index.js'
 import { useSupaQuery } from '../../hooks/useSupaQuery.js'
-import { formatCurrency } from '../../lib/utils.js'
+import { formatCurrency, formatCurrencyCompact } from '../../lib/utils.js'
 import { PRODUCT_TYPE_LABELS } from '../../lib/constants.js'
 
 const OPPORTUNITY_COPY = {
@@ -87,22 +87,30 @@ export default function ProductDetail() {
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-orange-50 px-3 py-1 text-xs font-semibold text-orange-700">{p.category?.vertical}</span>
             <span className="text-xs font-medium text-ink-soft">{PRODUCT_TYPE_LABELS[p.product_type]}</span>
-            {!p.pricing_confirmed && <Badge tone="amber">Draft price</Badge>}
+            {!p.pricing_confirmed && <Badge tone="amber">Indicative pricing</Badge>}
           </div>
 
           <h1 className="mt-3 text-3xl font-black tracking-tight text-ink sm:text-4xl">{p.name}</h1>
           <p className="mt-3 max-w-2xl text-base leading-relaxed text-ink-soft">{p.description}</p>
 
-          <div className="mt-6 flex flex-wrap items-center gap-4">
-            <p className="text-2xl font-black text-ink">
-              {formatCurrency(p.retail_price, p.currency)}<span className="text-sm font-medium text-ink-soft">/yr</span>
-            </p>
+          <div className="mt-6 flex flex-wrap items-end gap-4">
+            <div>
+              {!p.pricing_confirmed && (
+                <p className="text-xs font-medium uppercase tracking-wide text-ink-soft">Starting from</p>
+              )}
+              <p className="text-2xl font-black text-ink">
+                {formatCurrency(p.retail_price, p.currency)}<span className="text-sm font-medium text-ink-soft">/yr</span>
+              </p>
+            </div>
             {p.source_url && (
               <a href={p.source_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-xs font-semibold text-orange-600 hover:underline">
                 View on digitalsofts.com <ExternalLink className="h-3.5 w-3.5" />
               </a>
             )}
           </div>
+          {!p.pricing_confirmed && (
+            <p className="mt-2 text-xs text-ink-soft">Final pricing is confirmed with Digitalsofts during partner onboarding.</p>
+          )}
         </div>
       </section>
 
@@ -165,7 +173,7 @@ export default function ProductDetail() {
                       className="flex items-center justify-between rounded-xl border border-line px-3.5 py-2.5 text-sm transition-colors hover:border-orange-300 hover:bg-orange-50/50"
                     >
                       <span className="font-medium text-ink">{r.name}</span>
-                      <span className="text-xs text-ink-soft">{formatCurrency(r.retail_price, r.currency)}</span>
+                      <span className="text-xs text-ink-soft">{formatCurrencyCompact(r.retail_price, r.currency)}</span>
                     </Link>
                   ))}
                 </div>

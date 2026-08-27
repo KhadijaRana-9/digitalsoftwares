@@ -3,9 +3,9 @@ import { Link } from 'react-router-dom'
 import { Search, Package } from 'lucide-react'
 import PublicNavbar from '../../components/layout/PublicNavbar.jsx'
 import PublicFooter from '../../components/layout/PublicFooter.jsx'
-import { Input, Badge, SkeletonCards, EmptyState, ErrorState } from '../../components/ui/index.js'
+import { Input, SkeletonCards, EmptyState, ErrorState } from '../../components/ui/index.js'
 import { useSupaQuery } from '../../hooks/useSupaQuery.js'
-import { formatCurrency } from '../../lib/utils.js'
+import { formatCurrencyCompact } from '../../lib/utils.js'
 import { PRODUCT_TYPE_LABELS } from '../../lib/constants.js'
 
 export default function Products() {
@@ -97,10 +97,15 @@ export default function Products() {
                 </div>
                 <h3 className="mt-3 font-bold text-ink group-hover:text-orange-600">{p.name}</h3>
                 <p className="mt-1.5 line-clamp-2 flex-1 text-sm text-ink-soft">{p.description}</p>
-                <div className="mt-4 flex items-center justify-between">
-                  <p className="text-lg font-black text-ink">{formatCurrency(p.retail_price, p.currency)}<span className="text-xs font-medium text-ink-soft">/yr</span></p>
+                <div className="mt-4 flex items-center justify-between gap-2">
+                  <div>
+                    {!p.pricing_confirmed && (
+                      <p className="text-[11px] font-medium uppercase tracking-wide text-ink-soft">From</p>
+                    )}
+                    <p className="text-base font-bold text-ink">{formatCurrencyCompact(p.retail_price, p.currency)}<span className="text-xs font-medium text-ink-soft">/yr</span></p>
+                  </div>
                   {!p.pricing_confirmed && (
-                    <Badge tone="amber">Draft price</Badge>
+                    <span className="text-[11px] font-medium text-ink-soft">Indicative</span>
                   )}
                 </div>
               </Link>

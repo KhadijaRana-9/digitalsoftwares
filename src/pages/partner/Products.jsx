@@ -81,7 +81,7 @@ export default function PartnerProducts() {
                 <span className="text-[11px] font-medium text-ink-soft">{PRODUCT_TYPE_LABELS[p.product_type]}</span>
               </div>
               <h3 className="mt-3 font-bold text-ink">{p.name}</h3>
-              {!p.pricing_confirmed && <Badge tone="amber" className="mt-2 w-fit">Draft price</Badge>}
+              {!p.pricing_confirmed && <Badge tone="amber" className="mt-2 w-fit">Indicative pricing</Badge>}
               <div className="mt-4 flex items-end justify-between">
                 <div>
                   <p className="text-[11px] font-semibold uppercase text-ink-soft">{p.isSaas ? 'Price / yr' : 'Your price'}</p>
@@ -113,7 +113,7 @@ export default function PartnerProducts() {
             )}
 
             {!selected.pricing_confirmed && (
-              <Badge tone="amber">Draft pricing — pending confirmation from Digitalsofts</Badge>
+              <Badge tone="amber">Indicative pricing — confirmed with Digitalsofts before contract</Badge>
             )}
 
             <div className="grid grid-cols-2 gap-3">

@@ -9,7 +9,7 @@ import { useToast } from '../../context/ToastContext.jsx'
 import { formatCurrency } from '../../lib/utils.js'
 
 const ruleEmptyForm = { name: '', scope_type: 'tier', tier_id: '', product_id: '', partner_id: '', commission_percent: '', recurring: false, notes: '' }
-const mapEmptyForm = { product_id: '', territory_id: '', map_price: '', currency: 'USD', requires_approval_below: true }
+const mapEmptyForm = { product_id: '', territory_id: '', map_price: '', currency: 'PKR', requires_approval_below: true }
 
 export default function Pricing() {
   const toast = useToast()

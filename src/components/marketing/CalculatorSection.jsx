@@ -3,9 +3,9 @@ import { motion } from 'framer-motion'
 import { Calculator as CalcIcon } from 'lucide-react'
 import Reveal from '../Reveal.jsx'
 import SectionHeader from '../SectionHeader.jsx'
+import { formatCurrency } from '../../lib/utils.js'
 
-const formatPKR = (n) =>
-  `PKR ${Math.round(n).toLocaleString('en-PK', { maximumFractionDigits: 0 })}`
+const formatPKR = (n) => formatCurrency(Math.round(n))
 
 export default function CalculatorSection() {
   const [retailPrice, setRetailPrice] = useState(250000)

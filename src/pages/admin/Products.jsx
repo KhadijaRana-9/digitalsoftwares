@@ -9,10 +9,10 @@ import { useToast } from '../../context/ToastContext.jsx'
 import { formatCurrency, slugify } from '../../lib/utils.js'
 import { PRODUCT_TYPES, PRODUCT_TYPE_LABELS } from '../../lib/constants.js'
 
-const CURRENCIES = ['USD', 'PKR']
+const CURRENCIES = ['PKR', 'USD']
 const emptyForm = {
   name: '', category_id: '', description: '', features: '', product_type: 'saas',
-  retail_price: '', currency: 'USD', source_url: '', pricing_confirmed: false, is_active: true,
+  retail_price: '', currency: 'PKR', source_url: '', pricing_confirmed: false, is_active: true,
 }
 
 export default function AdminProducts() {
@@ -201,7 +201,7 @@ export default function AdminProducts() {
               onChange={(e) => setForm((f) => ({ ...f, pricing_confirmed: e.target.checked }))}
               className="h-4 w-4 rounded border-line text-orange-500 focus:ring-orange-400"
             />
-            Pricing confirmed by Digitalsofts leadership (unchecked = shown as "Draft price" everywhere)
+            Pricing confirmed by Digitalsofts leadership (unchecked = shown as "Indicative pricing" everywhere)
           </label>
           <div className="flex justify-end gap-2 sm:col-span-2">
             <Button type="button" variant="outline" onClick={() => setModalOpen(false)}>Cancel</Button>

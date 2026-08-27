@@ -5,10 +5,18 @@ export function cn(...args) {
   return twMerge(clsx(...args))
 }
 
-export function formatCurrency(amount, currency = 'PKR') {
+// The platform displays every financial figure in PKR — this is the single
+// place that fact lives. Product catalog data is sourced in USD (the real
+// digitalsofts.com listings), so amounts tagged as USD get converted here
+// rather than just relabeled; nothing else in the app should format money
+// on its own or a USD figure could end up on screen unconverted.
+export const USD_TO_PKR_RATE = 278 // approx market rate, PKR per 1 USD — update centrally here if it drifts
+
+export function formatCurrency(amount, sourceCurrency = 'PKR') {
   if (amount === null || amount === undefined || Number.isNaN(Number(amount))) return '—'
-  const n = Number(amount)
-  return `${currency} ${n.toLocaleString('en-PK', { maximumFractionDigits: 0 })}`
+  let n = Number(amount)
+  if (sourceCurrency === 'USD') n *= USD_TO_PKR_RATE
+  return `PKR ${n.toLocaleString('en-PK', { maximumFractionDigits: 0 })}`
 }
 
 export function formatCompact(amount) {
@@ -17,6 +25,17 @@ export function formatCompact(amount) {
   if (Math.abs(n) >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`
   if (Math.abs(n) >= 1_000) return `${(n / 1_000).toFixed(1)}K`
   return `${n}`
+}
+
+// Same PKR conversion as formatCurrency, but compact — for catalog cards and
+// other tight spaces where a precise 7-figure PKR number would dominate the
+// layout. Use formatCurrency wherever the exact figure actually matters
+// (product detail, invoices, commission ledgers).
+export function formatCurrencyCompact(amount, sourceCurrency = 'PKR') {
+  if (amount === null || amount === undefined || Number.isNaN(Number(amount))) return '—'
+  let n = Number(amount)
+  if (sourceCurrency === 'USD') n *= USD_TO_PKR_RATE
+  return `PKR ${formatCompact(n)}`
 }
 
 export function formatDate(value) {

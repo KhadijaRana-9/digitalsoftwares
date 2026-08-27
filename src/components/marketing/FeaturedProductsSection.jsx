@@ -4,7 +4,7 @@ import { ArrowUpRight, Package } from 'lucide-react'
 import Reveal from '../Reveal.jsx'
 import SectionHeader from '../SectionHeader.jsx'
 import { useSupaQuery } from '../../hooks/useSupaQuery.js'
-import { formatCurrency } from '../../lib/utils.js'
+import { formatCurrencyCompact } from '../../lib/utils.js'
 import { PRODUCT_TYPE_LABELS } from '../../lib/constants.js'
 
 export default function FeaturedProductsSection() {
@@ -53,8 +53,9 @@ export default function FeaturedProductsSection() {
               </div>
               <h3 className="mt-3 line-clamp-1 font-bold text-ink group-hover:text-orange-600">{p.name}</h3>
               <p className="mt-1.5 line-clamp-2 flex-1 text-sm text-ink-soft">{p.description}</p>
-              <p className="mt-3 text-sm font-black text-ink">
-                {formatCurrency(p.retail_price, p.currency)}
+              <p className="mt-3 text-sm font-bold text-ink">
+                {!p.pricing_confirmed && <span className="font-normal text-ink-soft">From </span>}
+                {formatCurrencyCompact(p.retail_price, p.currency)}
                 <span className="text-xs font-medium text-ink-soft">/yr</span>
               </p>
             </Link>
