@@ -8,7 +8,6 @@ import TerritorySection from '../../components/marketing/TerritorySection.jsx'
 import CalculatorSection from '../../components/marketing/CalculatorSection.jsx'
 import VerticalsSection from '../../components/marketing/VerticalsSection.jsx'
 import ProgramDetailsSection from '../../components/marketing/ProgramDetailsSection.jsx'
-import FAQSection from '../../components/marketing/FAQSection.jsx'
 import CTASection from '../../components/marketing/CTASection.jsx'
 
 export default function Home() {
@@ -24,7 +23,6 @@ export default function Home() {
         <CalculatorSection />
         <VerticalsSection />
         <ProgramDetailsSection />
-        <FAQSection />
         <CTASection />
       </main>
       <PublicFooter />

@@ -114,7 +114,6 @@ export const publicNav = [
   { to: '/products', label: 'Products' },
   { to: '/partners', label: 'Find a Partner' },
   { to: '/#calculator', label: 'Calculator' },
-  { to: '/#faq', label: 'FAQ' },
 ]
 
 export { ShieldCheck }

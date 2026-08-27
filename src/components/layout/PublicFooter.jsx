@@ -18,7 +18,6 @@ const columns = [
       { label: 'Partner Academy', href: '/#program-details' },
       { label: 'Commission Structure', href: '/#commissions' },
       { label: 'Deal Registration', href: '/#program-details' },
-      { label: 'FAQ', href: '/#faq' },
     ],
   },
   {
