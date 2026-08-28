@@ -134,7 +134,7 @@ export default function TiersSection() {
               </div>
             )}
 
-            <Button className="w-full" icon={ArrowUpRight} onClick={() => navigate('/apply')}>
+            <Button className="w-full" icon={ArrowUpRight} onClick={() => navigate(`/apply?tier=${selected.id}`)}>
               Apply as {selected.name}
             </Button>
           </div>

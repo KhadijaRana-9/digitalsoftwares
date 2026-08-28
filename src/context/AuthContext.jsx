@@ -6,19 +6,25 @@ import { roleHomePath } from '../lib/roleHome.js'
 const AuthContext = createContext(null)
 
 async function flushPendingApplication(user) {
-  const pending = loadPendingApplication()
-  if (!pending || pending.email !== user.email) return
-  const { data: existing } = await supabase
-    .from('partner_applications')
-    .select('id')
-    .eq('user_id', user.id)
-    .maybeSingle()
-  if (existing) {
-    clearPendingApplication()
-    return
+  try {
+    const pending = loadPendingApplication()
+    if (!pending || pending.email !== user.email) return
+    const { data: existing } = await supabase
+      .from('partner_applications')
+      .select('id')
+      .eq('user_id', user.id)
+      .maybeSingle()
+    if (existing) {
+      clearPendingApplication()
+      return
+    }
+    const { error } = await supabase.from('partner_applications').insert({ ...pending, user_id: user.id })
+    if (!error) clearPendingApplication()
+  } catch (err) {
+    // A failed flush must never block auth resolution — the pending payload
+    // stays in localStorage and is retried on the next session change.
+    console.error('flushPendingApplication failed:', err)
   }
-  const { error } = await supabase.from('partner_applications').insert({ ...pending, user_id: user.id })
-  if (!error) clearPendingApplication()
 }
 
 export function AuthProvider({ children }) {
@@ -37,26 +43,36 @@ export function AuthProvider({ children }) {
       setPermissions(new Set())
       return
     }
-    const [{ data: profileRow }, { data: partnerRow }, { data: customerRow }] = await Promise.all([
-      supabase.from('profiles').select('*, admin_role:roles(*)').eq('id', userId).maybeSingle(),
-      supabase
-        .from('partner_profiles')
-        .select('*, tier:partner_tiers(*)')
-        .eq('id', userId)
-        .maybeSingle(),
-      supabase.from('customers').select('*').eq('user_id', userId).maybeSingle(),
-    ])
-    setProfile(profileRow ?? null)
-    setPartnerProfile(partnerRow ?? null)
-    setCustomerRecord(customerRow ?? null)
+    try {
+      const [{ data: profileRow }, { data: partnerRow }, { data: customerRow }] = await Promise.all([
+        supabase.from('profiles').select('*, admin_role:roles(*)').eq('id', userId).maybeSingle(),
+        supabase
+          .from('partner_profiles')
+          .select('*, tier:partner_tiers(*)')
+          .eq('id', userId)
+          .maybeSingle(),
+        supabase.from('customers').select('*').eq('user_id', userId).maybeSingle(),
+      ])
+      setProfile(profileRow ?? null)
+      setPartnerProfile(partnerRow ?? null)
+      setCustomerRecord(customerRow ?? null)
 
-    if (profileRow?.role === 'admin' && profileRow.admin_role_id) {
-      const { data: permRows } = await supabase
-        .from('role_permissions')
-        .select('permission:permissions(key)')
-        .eq('role_id', profileRow.admin_role_id)
-      setPermissions(new Set((permRows ?? []).map((r) => r.permission?.key).filter(Boolean)))
-    } else {
+      if (profileRow?.role === 'admin' && profileRow.admin_role_id) {
+        const { data: permRows } = await supabase
+          .from('role_permissions')
+          .select('permission:permissions(key)')
+          .eq('role_id', profileRow.admin_role_id)
+        setPermissions(new Set((permRows ?? []).map((r) => r.permission?.key).filter(Boolean)))
+      } else {
+        setPermissions(new Set())
+      }
+    } catch (err) {
+      // A network blip here must never leave `loading` stuck forever — land
+      // on a signed-in-but-no-profile state rather than an unresolved one.
+      console.error('loadProfile failed:', err)
+      setProfile(null)
+      setPartnerProfile(null)
+      setCustomerRecord(null)
       setPermissions(new Set())
     }
   }, [])
@@ -64,15 +80,23 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     let mounted = true
 
-    supabase.auth.getSession().then(async ({ data }) => {
-      if (!mounted) return
-      setSession(data.session ?? null)
-      if (data.session?.user) {
-        await flushPendingApplication(data.session.user)
-        await loadProfile(data.session.user.id)
-      }
-      setLoading(false)
-    })
+    supabase.auth.getSession()
+      .then(async ({ data }) => {
+        if (!mounted) return
+        setSession(data.session ?? null)
+        if (data.session?.user) {
+          await flushPendingApplication(data.session.user)
+          await loadProfile(data.session.user.id)
+        }
+      })
+      .catch((err) => {
+        // getSession() itself failing (offline, DNS, malformed stored token)
+        // must not leave every ProtectedRoute/GuestRoute spinning forever.
+        console.error('getSession failed:', err)
+      })
+      .finally(() => {
+        if (mounted) setLoading(false)
+      })
 
     const { data: sub } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
       setSession(newSession)

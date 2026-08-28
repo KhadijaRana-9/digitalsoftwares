@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { ArrowUpRight, CheckCircle2, MailCheck } from 'lucide-react'
@@ -19,9 +19,16 @@ export default function Apply() {
   const { signUp } = useAuth()
   const toast = useToast()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const [step, setStep] = useState('form')
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState({})
+
+  // Preserves the tier selected in the marketing site's tier drawer
+  // (?tier=certified etc.) — a real URL param so it also survives a page
+  // refresh or a direct link, not just in-memory navigation state.
+  const requestedTier = searchParams.get('tier')
+  const initialTier = PARTNER_TIERS.includes(requestedTier) ? requestedTier : 'reseller'
 
   const { data: tiers } = useQuery({
     queryKey: ['partner_tiers_public'],
@@ -36,7 +43,7 @@ export default function Apply() {
   const [form, setForm] = useState({
     fullName: '', email: '', password: '',
     phone: '', company: '', country: '', city: '', industry: '',
-    partnerType: 'reseller', website: '', experience: EXPERIENCE_OPTIONS[0],
+    partnerType: initialTier, website: '', experience: EXPERIENCE_OPTIONS[0],
     customerBase: CUSTOMER_BASE_OPTIONS[0], territory: '', notes: '',
   })
 
@@ -146,6 +153,12 @@ export default function Apply() {
 
   return (
     <AuthShell title="Apply to the Partner Network" subtitle="Create your account and tell us about your business — most applications are reviewed within 48 hours." width="max-w-2xl">
+      {PARTNER_TIERS.includes(requestedTier) && (
+        <div className="mb-6 flex items-center gap-2 rounded-xl border border-orange-200 bg-orange-50 px-4 py-3 text-sm">
+          <span className="text-ink-soft">Applying as</span>
+          <span className="font-bold text-orange-700">{TIER_LABELS[requestedTier]}</span>
+        </div>
+      )}
       <form onSubmit={handleSubmit} className="space-y-6">
         <fieldset>
           <legend className="mb-3 text-xs font-bold uppercase tracking-wide text-orange-600">Account</legend>

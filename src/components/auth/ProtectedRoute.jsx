@@ -1,6 +1,8 @@
+import { useEffect } from 'react'
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext.jsx'
+import { useToast } from '../../context/ToastContext.jsx'
 
 function FullScreenLoader() {
   return (
@@ -47,6 +49,23 @@ export function ProtectedRoute({ role, permission }) {
 
 export function GuestRoute({ children }) {
   const { session, loading, homePath } = useAuth()
+  const toast = useToast()
+
+  // Signed-in visitors land here from things like "Apply as X" in the tier
+  // drawer — bouncing them to their own dashboard with zero explanation
+  // reads as a broken link, not an intentional redirect. Keyed on `loading`
+  // alone (not `session`) so this fires exactly once, evaluating whether a
+  // session already existed when the initial check resolved — a session
+  // that appears later because the visitor just signed in ON this very
+  // page (e.g. /login itself, which also uses GuestRoute) must not
+  // re-trigger it and race against that page's own post-login redirect.
+  useEffect(() => {
+    if (!loading && session) {
+      toast.info("You're already signed in — here's your dashboard.")
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading])
+
   if (loading) return <FullScreenLoader />
   if (session) {
     return <Navigate to={homePath} replace />
